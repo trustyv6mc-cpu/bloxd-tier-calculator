@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tier Tester Pro Dashboard</title>
+  <title>Tier Tester Esports Dashboard</title>
 
   <style>
     body {
       margin: 0;
       font-family: Arial;
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      background: radial-gradient(circle at top, #111, #000);
       color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .container {
-      width: 420px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
+    .card {
+      width: 450px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(0,255,150,0.2);
       border-radius: 15px;
       padding: 20px;
-      box-shadow: 0 0 25px rgba(0,255,150,0.15);
-      animation: pop 0.6s ease;
+      box-shadow: 0 0 40px rgba(0,255,150,0.15);
+      animation: fadeIn 0.6s ease;
     }
 
-    @keyframes pop {
-      from { transform: scale(0.9); opacity: 0; }
+    @keyframes fadeIn {
+      from { transform: scale(0.8); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
 
@@ -38,13 +39,14 @@
 
     textarea {
       width: 100%;
-      height: 160px;
-      background: #111;
+      height: 180px;
+      background: #0f0f0f;
       color: white;
       border: 1px solid #333;
       border-radius: 10px;
       padding: 10px;
-      resize: none;
+      font-size: 14px;
+      outline: none;
     }
 
     button {
@@ -53,8 +55,7 @@
       padding: 12px;
       border: none;
       border-radius: 10px;
-      background: linear-gradient(90deg, #00ff88, #00c3ff);
-      color: black;
+      background: linear-gradient(90deg,#00ff88,#00c3ff);
       font-weight: bold;
       cursor: pointer;
       transition: 0.2s;
@@ -67,41 +68,43 @@
     .result {
       margin-top: 15px;
       padding: 15px;
-      border-radius: 10px;
+      border-radius: 12px;
       background: rgba(0,0,0,0.4);
-      animation: fadeIn 0.5s ease;
+      animation: pop 0.5s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes pop {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .score {
+      font-size: 20px;
+      font-weight: bold;
+      color: #00ff88;
     }
 
     .tier {
       font-size: 22px;
       font-weight: bold;
+      margin-top: 5px;
     }
 
-    .LT5 { color: #ff4d4d; }
-    .HT5 { color: #ff884d; }
-    .LT4 { color: #ffd24d; }
-    .HT4 { color: #c6ff4d; }
-    .LT3 { color: #4dff88; }
-    .HT3 { color: #00ff88; }
-    .LT2 { color: #00e6ff; }
-    .HT2 { color: #4d79ff; }
-    .LT1 { color: #b84dff; }
-    .HT1 { color: #ff4df0; }
-
-    .small {
-      font-size: 13px;
-      opacity: 0.8;
-    }
+    .LT5 { color:#ff4d4d; }
+    .HT5 { color:#ff884d; }
+    .LT4 { color:#ffd24d; }
+    .HT4 { color:#c6ff4d; }
+    .LT3 { color:#4dff88; }
+    .HT3 { color:#00ff88; }
+    .LT2 { color:#00e6ff; }
+    .HT2 { color:#4d79ff; }
+    .LT1 { color:#b84dff; }
+    .HT1 { color:#ff4df0; }
 
     .good {
-      margin-top: 10px;
       color: #00ff88;
       font-weight: bold;
+      margin-top: 10px;
     }
 
   </style>
@@ -109,29 +112,47 @@
 
 <body>
 
-<div class="container">
+<div class="card">
 
-  <h1>⚔️ Tier Tester Pro</h1>
+<h1>⚔️ Tier Tester Pro Esports</h1>
 
-  <textarea id="input">Tier tester tier: LT2
+<textarea id="input">Tier Tester Tier: LT2
 W 67
+L 78
+W 21
+L 81
 W 12
-W 13
-W 15
 W 14</textarea>
 
-  <button onclick="calc()">RUN ANALYSIS</button>
+<button onclick="calc()">RUN ANALYSIS</button>
 
-  <div id="result"></div>
+<div id="result"></div>
 
 </div>
 
+<!-- SOUND EFFECTS -->
+<audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+<audio id="winSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
 <script>
+function playClick() {
+  document.getElementById("clickSound").play();
+}
+
+function playWin() {
+  document.getElementById("winSound").play();
+}
+
 function calc() {
+
+    playClick();
+
     let lines = document.getElementById("input").value.trim().split("\n");
 
     let testerTier = lines[0].split(":")[1].trim().toUpperCase();
 
+    let win = 0;
+    let loss = 0;
     let sum = 0;
     let count = 0;
 
@@ -142,42 +163,50 @@ function calc() {
 
         if (isNaN(value)) continue;
 
-        if (type === "W") sum += value;
-        else if (type === "L") sum -= value;
+        if (type === "W") {
+            win++;
+            sum += value;
+        } else if (type === "L") {
+            loss++;
+            sum -= value;
+        }
 
         count++;
     }
 
+    let scoreText = win + "-" + loss;
     let avg = sum / count;
     let value = avg / 100;
 
     let tier = "";
-    let range = "";
-    let colorClass = "";
+    let color = "";
 
-    if (value < 0.2) { tier="LT5"; range="0.1 - 0.19999"; colorClass="LT5"; }
-    else if (value < 0.3) { tier="HT5"; range="0.2 - 0.29999"; colorClass="HT5"; }
-    else if (value < 0.4) { tier="LT4"; range="0.3 - 0.39999"; colorClass="LT4"; }
-    else if (value < 0.5) { tier="HT4"; range="0.4 - 0.49999"; colorClass="HT4"; }
-    else if (value < 0.6) { tier="LT3"; range="0.5 - 0.59999"; colorClass="LT3"; }
-    else if (value < 0.7) { tier="HT3"; range="0.6 - 0.69999"; colorClass="HT3"; }
-    else if (value < 0.8) { tier="LT2"; range="0.7 - 0.79999"; colorClass="LT2"; }
-    else if (value < 0.9) { tier="HT2"; range="0.8 - 0.89999"; colorClass="HT2"; }
-    else if (value < 1.0) { tier="LT1"; range="0.9 - 0.99999"; colorClass="LT1"; }
-    else { tier="HT1"; range="1.0+"; colorClass="HT1"; }
+    if (value < 0.2) { tier="LT5"; color="LT5"; }
+    else if (value < 0.3) { tier="HT5"; color="HT5"; }
+    else if (value < 0.4) { tier="LT4"; color="LT4"; }
+    else if (value < 0.5) { tier="HT4"; color="HT4"; }
+    else if (value < 0.6) { tier="LT3"; color="LT3"; }
+    else if (value < 0.7) { tier="HT3"; color="HT3"; }
+    else if (value < 0.8) { tier="LT2"; color="LT2"; }
+    else if (value < 0.9) { tier="HT2"; color="HT2"; }
+    else if (value < 1.0) { tier="LT1"; color="LT1"; }
+    else { tier="HT1"; color="HT1"; }
+
+    playWin();
 
     document.getElementById("result").innerHTML =
-    `<div class="result">
-        <div>📊 Average: <b>${avg.toFixed(2)}</b></div>
-        <div>⚡ Value: <b>${value.toFixed(3)}</b></div>
+    `
+    <div class="result">
+      <div class="score">📊 Score: ${scoreText}</div>
+      <div>⚡ Value: ${value.toFixed(3)}</div>
 
-        <div class="tier ${colorClass}">🏆 Player Tier: ${tier}</div>
+      <div class="tier ${color}">🏆 Player Tier: ${tier}</div>
 
-        <div class="small">📌 Range: ${range}</div>
-        <div class="small">👤 Tester Tier: ${testerTier}</div>
+      <div>👤 Tester Tier: ${testerTier}</div>
 
-        <div class="good">🎉 Analysis Complete!</div>
-    </div>`;
+      <div class="good">🎉 CONGRATULATIONS!</div>
+    </div>
+    `;
 }
 </script>
 
