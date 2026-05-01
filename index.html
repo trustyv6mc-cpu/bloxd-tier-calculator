@@ -20,18 +20,11 @@
       padding: 25px;
       border-radius: 20px;
       background: rgba(255,255,255,0.05);
-      box-shadow: 0 0 40px rgba(128,0,255,0.2);
+      box-shadow: 0 0 40px rgba(168,85,247,0.2);
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
-    }
-
-    p {
-      text-align: center;
-      color: #9ca3af;
-      font-size: 14px;
     }
 
     label {
@@ -52,11 +45,6 @@
       outline: none;
     }
 
-    select:focus, input:focus {
-      border-color: #a855f7;
-      box-shadow: 0 0 10px #a855f7;
-    }
-
     button {
       width: 100%;
       margin-top: 20px;
@@ -66,11 +54,6 @@
       font-weight: bold;
       background: linear-gradient(90deg,#a855f7,#ec4899);
       cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.03);
     }
 
     .result {
@@ -79,6 +62,7 @@
       border-radius: 15px;
       background: rgba(168,85,247,0.1);
       text-align: center;
+      line-height: 1.8;
     }
 
     .tier {
@@ -93,8 +77,7 @@
 
 <div class="container">
 
-<h1>Tier Calculator</h1>
-<p>Positive = Win • Negative = Loss</p>
+<h1>⚔️ Bloxd Tier Calculator</h1>
 
 <label>Tier Tester Tier</label>
 <select id="tier">
@@ -110,10 +93,10 @@
   <option>LT5</option>
 </select>
 
-<label>HP List</label>
-<input id="hp" placeholder="Example: 37, -9, 67, 81">
+<label>HP List (comma separated)</label>
+<input id="hp" placeholder="Example: 37, -9, 67, -20">
 
-<button onclick="calc()">Calculate Tier</button>
+<button onclick="calc()">Calculate</button>
 
 <div id="result" class="result">Result will appear here</div>
 
@@ -121,7 +104,7 @@
 
 <script>
 
-// Tier values
+// EXACT tier values
 const tierMap = {
   LT5: 0.1, HT5: 0.2,
   LT4: 0.3, HT4: 0.4,
@@ -130,44 +113,53 @@ const tierMap = {
   LT1: 0.9, HT1: 1.0
 };
 
+function getTierFromValue(v) {
+  if (v >= 0.1 && v < 0.2) return "LT5";
+  if (v >= 0.2 && v < 0.3) return "HT5";
+  if (v >= 0.3 && v < 0.4) return "LT4";
+  if (v >= 0.4 && v < 0.5) return "HT4";
+  if (v >= 0.5 && v < 0.6) return "LT3";
+  if (v >= 0.6 && v < 0.7) return "HT3";
+  if (v >= 0.7 && v < 0.8) return "LT2";
+  if (v >= 0.8 && v < 0.9) return "HT2";
+  if (v >= 0.9 && v < 1.0) return "LT1";
+  if (v >= 1.0) return "HT1";
+  return "Invalid";
+}
+
 function calc() {
 
   let tierName = document.getElementById("tier").value;
   let t = tierMap[tierName];
 
   let input = document.getElementById("hp").value;
-  let nums = input.split(",").map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+
+  let nums = input
+    .split(",")
+    .map(x => parseFloat(x.trim()))
+    .filter(x => !isNaN(x));
 
   if (nums.length === 0) {
     document.getElementById("result").innerHTML = "❌ Invalid input";
     return;
   }
 
-  let sum = 0;
-  for (let n of nums) sum += n;
+  // SUM EXACT (positive = win, negative = loss)
+  let sum = nums.reduce((a,b)=>a+b,0);
 
+  // AVERAGE
   let avg = sum / nums.length;
 
-  // 🔥 YOUR REAL FORMULA
+  // FINAL VALUE (REAL FORMULA)
   let value = (avg / 100) * (t - 1) + t;
 
-  let tier = "";
-
-  if (value < 0.2) tier="LT5";
-  else if (value < 0.3) tier="HT5";
-  else if (value < 0.4) tier="LT4";
-  else if (value < 0.5) tier="HT4";
-  else if (value < 0.6) tier="LT3";
-  else if (value < 0.7) tier="HT3";
-  else if (value < 0.8) tier="LT2";
-  else if (value < 0.9) tier="HT2";
-  else if (value < 1.0) tier="LT1";
-  else tier="HT1";
+  // CORRECT TIER
+  let finalTier = getTierFromValue(value);
 
   document.getElementById("result").innerHTML = `
-    Average HP: ${avg.toFixed(2)} <br><br>
+    Average HP: ${avg.toFixed(2)} <br>
     Value: ${value.toFixed(3)} <br><br>
-    <span class="tier">${tier}</span>
+    <span class="tier">${finalTier}</span>
   `;
 }
 
