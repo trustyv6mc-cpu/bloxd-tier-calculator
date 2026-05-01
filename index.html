@@ -7,7 +7,7 @@
     body {
       margin: 0;
       font-family: Arial;
-      background: radial-gradient(circle at top, #0f0f0f, #000);
+      background: linear-gradient(135deg,#020617,#0f172a);
       color: white;
       display: flex;
       justify-content: center;
@@ -15,185 +15,162 @@
       height: 100vh;
     }
 
-    .panel {
-      width: 480px;
+    .container {
+      width: 500px;
+      padding: 25px;
+      border-radius: 20px;
       background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(0,255,150,0.2);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 0 30px rgba(0,255,150,0.15);
-      animation: pop 0.5s ease;
-    }
-
-    @keyframes pop {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      box-shadow: 0 0 40px rgba(128,0,255,0.2);
     }
 
     h1 {
       text-align: center;
-      color: #00ff88;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
-    .editor {
-      background: #0f0f0f;
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid #333;
-      min-height: 180px;
-      outline: none;
-      white-space: pre-line;
+    p {
+      text-align: center;
+      color: #9ca3af;
       font-size: 14px;
     }
 
-    .editor:focus {
-      border-color: #00ff88;
-      box-shadow: 0 0 10px #00ff88;
+    label {
+      margin-top: 15px;
+      display: block;
+      font-size: 14px;
+      color: #cbd5f5;
+    }
+
+    select, input {
+      width: 100%;
+      margin-top: 5px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #020617;
+      color: white;
+      outline: none;
+    }
+
+    select:focus, input:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 10px #a855f7;
     }
 
     button {
       width: 100%;
-      margin-top: 10px;
-      padding: 12px;
-      border: none;
+      margin-top: 20px;
+      padding: 14px;
       border-radius: 10px;
-      background: linear-gradient(90deg,#00ff88,#00c3ff);
+      border: none;
       font-weight: bold;
+      background: linear-gradient(90deg,#a855f7,#ec4899);
       cursor: pointer;
       transition: 0.2s;
     }
 
     button:hover {
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
 
     .result {
-      margin-top: 15px;
+      margin-top: 20px;
       padding: 15px;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.4);
-      animation: fade 0.5s ease;
-      line-height: 1.8;
-    }
-
-    @keyframes fade {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      border-radius: 15px;
+      background: rgba(168,85,247,0.1);
+      text-align: center;
     }
 
     .tier {
       font-size: 22px;
       font-weight: bold;
-    }
-
-    .LT5 { color:#ff4d4d; }
-    .HT5 { color:#ff884d; }
-    .LT4 { color:#ffd24d; }
-    .HT4 { color:#c6ff4d; }
-    .LT3 { color:#4dff88; }
-    .HT3 { color:#00ff88; }
-    .LT2 { color:#00e6ff; }
-    .HT2 { color:#4d79ff; }
-    .LT1 { color:#b84dff; }
-    .HT1 { color:#ff4df0; }
-
-    .good {
-      color: #00ff88;
-      font-weight: bold;
-      margin-top: 10px;
+      color: #c084fc;
     }
   </style>
 </head>
 
 <body>
 
-<div class="panel">
+<div class="container">
 
-<h1>⚔️ Bloxd Tier Calculator</h1>
+<h1>Tier Calculator</h1>
+<p>Positive = Win • Negative = Loss</p>
 
-<div class="editor" contenteditable="true" id="input">
-Tier Tester Tier: LT2
-W 67
-W 67
-W 67
-W 67
-W 67
+<label>Tier Tester Tier</label>
+<select id="tier">
+  <option>HT1</option>
+  <option>LT1</option>
+  <option>HT2</option>
+  <option>LT2</option>
+  <option>HT3</option>
+  <option>LT3</option>
+  <option>HT4</option>
+  <option>LT4</option>
+  <option>HT5</option>
+  <option>LT5</option>
+</select>
+
+<label>HP List</label>
+<input id="hp" placeholder="Example: 37, -9, 67, 81">
+
+<button onclick="calc()">Calculate Tier</button>
+
+<div id="result" class="result">Result will appear here</div>
+
 </div>
-
-<button onclick="calc()">RUN ANALYSIS</button>
-
-<div class="result" id="result"></div>
-
-</div>
-
-<!-- Sounds -->
-<audio id="click" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
-<audio id="win" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
 
 <script>
+
+// Tier values
+const tierMap = {
+  LT5: 0.1, HT5: 0.2,
+  LT4: 0.3, HT4: 0.4,
+  LT3: 0.5, HT3: 0.6,
+  LT2: 0.7, HT2: 0.8,
+  LT1: 0.9, HT1: 1.0
+};
+
 function calc() {
 
-    document.getElementById("click").play();
+  let tierName = document.getElementById("tier").value;
+  let t = tierMap[tierName];
 
-    let text = document.getElementById("input").innerText.trim().split("\n");
+  let input = document.getElementById("hp").value;
+  let nums = input.split(",").map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
 
-    let testerTier = text[0].split(":")[1].trim().toUpperCase();
+  if (nums.length === 0) {
+    document.getElementById("result").innerHTML = "❌ Invalid input";
+    return;
+  }
 
-    let win = 0;
-    let loss = 0;
-    let sum = 0;
-    let count = 0;
+  let sum = 0;
+  for (let n of nums) sum += n;
 
-    for (let i = 1; i < text.length; i++) {
+  let avg = sum / nums.length;
 
-        let parts = text[i].trim().split(" ");
-        let type = parts[0];
-        let value = parseFloat(parts[1]);
+  // 🔥 YOUR REAL FORMULA
+  let value = (avg / 100) * (t - 1) + t;
 
-        if (isNaN(value)) continue;
+  let tier = "";
 
-        if (type === "W") {
-            win++;
-            sum += value;
-        } else if (type === "L") {
-            loss++;
-            sum -= value;
-        }
+  if (value < 0.2) tier="LT5";
+  else if (value < 0.3) tier="HT5";
+  else if (value < 0.4) tier="LT4";
+  else if (value < 0.5) tier="HT4";
+  else if (value < 0.6) tier="LT3";
+  else if (value < 0.7) tier="HT3";
+  else if (value < 0.8) tier="LT2";
+  else if (value < 0.9) tier="HT2";
+  else if (value < 1.0) tier="LT1";
+  else tier="HT1";
 
-        count++;
-    }
-
-    let scoreText = win + "-" + loss;
-    let avg = sum / count;
-    let value = avg / 100;
-
-    let tier = "";
-    let range = "";
-    let color = "";
-
-    if (value < 0.2) { tier="LT5"; range="0.1 - 0.19999"; color="LT5"; }
-    else if (value < 0.3) { tier="HT5"; range="0.2 - 0.29999"; color="HT5"; }
-    else if (value < 0.4) { tier="LT4"; range="0.3 - 0.39999"; color="LT4"; }
-    else if (value < 0.5) { tier="HT4"; range="0.4 - 0.49999"; color="HT4"; }
-    else if (value < 0.6) { tier="LT3"; range="0.5 - 0.59999"; color="LT3"; }
-    else if (value < 0.7) { tier="HT3"; range="0.6 - 0.69999"; color="HT3"; }
-    else if (value < 0.8) { tier="LT2"; range="0.7 - 0.79999"; color="LT2"; }
-    else if (value < 0.9) { tier="HT2"; range="0.8 - 0.89999"; color="HT2"; }
-    else if (value < 1.0) { tier="LT1"; range="0.9 - 0.99999"; color="LT1"; }
-    else { tier="HT1"; range="1.0+"; color="HT1"; }
-
-    document.getElementById("win").play();
-
-    document.getElementById("result").innerHTML = `
-        📊 Score: <b>${scoreText}</b><br>
-        ⚡ Value: <b>${value.toFixed(3)}</b><br>
-        🏆 Player Tier: <b class="${color}">${tier}</b><br>
-        👤 Tester Tier: <b>${testerTier}</b><br>
-        📌 Range: ${range}<br>
-        <div class="good">🎉 CONGRATULATIONS</div>
-    `;
+  document.getElementById("result").innerHTML = `
+    Average HP: ${avg.toFixed(2)} <br><br>
+    Value: ${value.toFixed(3)} <br><br>
+    <span class="tier">${tier}</span>
+  `;
 }
+
 </script>
 
 </body>
