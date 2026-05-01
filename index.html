@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bloxd Tier Calculator</title>
+</head>
+
+<body style="background:#111;color:white;text-align:center;font-family:Arial;">
+
+<h1>⚔️ Tier Calculator</h1>
+
+<p>Enter each match (one per line)</p>
+
+<textarea id="input" rows="10" cols="30" placeholder="W 15
+W 87
+L 7
+W 57
+L 11
+W 18"></textarea>
+<br><br>
+
+<input id="t" placeholder="Tier value (e.g. 0.7)">
+<br><br>
+
+<button onclick="calc()">Calculate</button>
+
+<h2 id="result"></h2>
+
+<script>
+function calc() {
+    let text = document.getElementById("input").value.trim().split("\n");
+    let t = parseFloat(document.getElementById("t").value);
+
+    let sum = 0;
+    let count = 0;
+
+    for (let line of text) {
+        let parts = line.trim().split(" ");
+        let type = parts[0];
+        let value = Number(parts[1]);
+
+        if (type === "W") {
+            sum += value;
+        } else if (type === "L") {
+            sum -= value;
+        }
+
+        count++;
+    }
+
+    let avg = sum / count;
+
+    let score = (avg / 100) * (t - 1) + t;
+
+    let tier = "";
+
+    if(score <= 0.1) tier="LT5";
+    else if(score <= 0.2) tier="HT5";
+    else if(score <= 0.3) tier="LT4";
+    else if(score <= 0.4) tier="HT4";
+    else if(score <= 0.5) tier="LT3";
+    else if(score <= 0.6) tier="HT3";
+    else if(score <= 0.7) tier="LT2";
+    else if(score <= 0.8) tier="HT2";
+    else if(score <= 0.9) tier="LT1";
+    else tier="HT1";
+
+    document.getElementById("result").innerHTML =
+      "Average: " + avg.toFixed(2) +
+      "<br>Score: " + score.toFixed(3) +
+      "<br>Tier: " + tier;
+}
+</script>
+
+</body>
+</html>
